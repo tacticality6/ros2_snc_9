@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PACKAGE_NAME="ROS2_SNC_9" # Change this to your package name
+PACKAGE_NAME="ros2_snc_9" # Change this to your package name
 WS_DIR=~/ros2_ws  # Change this if your workspace is in a different location
 SRC_DIR="$WS_DIR/src/$PACKAGE_NAME"
 
