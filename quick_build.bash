@@ -9,6 +9,9 @@ PACKAGE_NAME="ROS2_SNC_9"
 
 LAUNCH_FILE=$2
 
+
+cd $WS_DIR
+
 # === SOURCE ROS 2 ENVIRONMENT ===
 source /opt/ros/$ROS2_VERSION/setup.bash
 source $WS_DIR/install/setup.bash

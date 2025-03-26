@@ -11,7 +11,7 @@ if [ ! -d "$SRC_DIR" ]; then
 fi
 
 #change to workspace directory
-cd "$WS_DIR"
+cd $WS_DIR
 # Remove the package
 echo "Removing package '$PACKAGE_NAME'..."
 rm -rf "$SRC_DIR"
