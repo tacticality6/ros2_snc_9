@@ -3,14 +3,17 @@
 <package format="3">
   <name>ros2_snc_9</name>
   <version>0.0.0</version>
-  <description>Package containing an implementation of the ROS2 Search & Rescue Challenge (SNC) for Programming Autonomous Robots</description>
+  <description>TODO</description>
   <maintainer email="michael.reece@live.com.au">Michael R (s3947763)</maintainer>
   
   <license>TODO: License declaration</license>
 
+  <buildtool_depend>ament_python</buildtool_depend>
+
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
   <depend>nav_msgs</depend>
+  <depend>ros2_snc_9_interfaces</depend>
   <depend>visualisation_msgs</depend>
 
   <test_depend>ament_copyright</test_depend>
