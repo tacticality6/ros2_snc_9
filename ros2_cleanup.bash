@@ -2,17 +2,38 @@
 
 PACKAGE_NAME="ros2_snc_9" # Change this to your package name
 
-if [ -z "$1" ]; then
-    WS_DIR=~/ros2_ws  # Default Workspace directory
+#automatically determine workspace
+# Check if the ROS 2 environment is sourced
+if [ -n "$COLCON_PREFIX_PATH" ]; then
+    # If sourced, use COLCON_PREFIX_PATH to find the workspace
+    WS_DIR=$(dirname $(echo $COLCON_PREFIX_PATH | cut -d':' -f1))
+    echo "ROS 2 Workspace detected (from COLCON_PREFIX_PATH): $WS_DIR"
+elif [ -n "$AMENT_PREFIX_PATH" ]; then
+    # If sourced, use AMENT_PREFIX_PATH to find the workspace
+    WS_DIR=$(dirname $(echo $AMENT_PREFIX_PATH | cut -d':' -f1))
+    echo "ROS 2 Workspace detected (from AMENT_PREFIX_PATH): $WS_DIR"
 else
-    WS_DIR=$1
+    # If not sourced, search upwards for 'src' folder
+    echo "ROS 2 workspace not sourced, searching directories..."
+    while [ "$PWD" != "/" ]; do
+        if [ -d "$PWD/src" ]; then
+            echo "Found ROS 2 workspace at: $PWD"
+            break
+        fi
+        cd ..
+    done
+    if [ "$PWD" == "/" ]; then
+        echo "Error: ROS 2 workspace not found."
+        exit 1
+    fi
+    WS_DIR=$PWD
 fi
 
 SRC_DIR="$WS_DIR/src/$PACKAGE_NAME"
 
 # Check if workspace exists
 if [ ! -d "$WS_DIR" ]; then
-    echo "Error: Workspace '$WS_DIR' not found. Did you forget to pass the workspace as an argument?"
+    echo "Error: Workspace '$WS_DIR' not found."
     exit 1
 fi
 
@@ -20,17 +41,15 @@ fi
 # Check if the package exists
 if [ ! -d "$SRC_DIR" ]; then
     echo "Error: Package '$PACKAGE_NAME' not found in $WS_DIR/src/"
-    exit 1
+    echo "Skipping..."
+else
+    # Remove the package
+    echo "Removing package '$PACKAGE_NAME'..."
+    rm -rf "$SRC_DIR"
 fi
-
-#change to workspace directory
-cd $WS_DIR
-# Remove the package
-echo "Removing package '$PACKAGE_NAME'..."
-rm -rf "$SRC_DIR"
 
 # Clean build, install, and log directories
 echo "Cleaning up build, install, and log directories..."
 rm -rf "$WS_DIR/build" "$WS_DIR/install" "$WS_DIR/log"
 
-echo "Package '$PACKAGE_NAME' removed successfully."
+echo "Workspace Cleaned Successfully"
