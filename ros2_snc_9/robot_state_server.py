@@ -14,6 +14,7 @@ class StateServer(Node):
 
 
         self.current_state = "Awaiting Start"
+        self.state_list = ['Awaiting Start', 'Exploring', 'Returning Home']
 
         self.state_publisher = self.create_publisher(
             String, 
@@ -38,8 +39,13 @@ class StateServer(Node):
             QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
         )
 
+        self.get_logger().info("State Manager Ready...")
+
 
     def set_state_callback(self, request, response):
+        if request.new_state not in self.state_list:
+            response.success = False
+            return response
         self.current_state = request.new_state
         response.success = True
         return response
@@ -49,6 +55,11 @@ class StateServer(Node):
         msg = String()
         msg.data = self.current_state
         self.state_publisher.publish(msg)
+        self.get_logger().debug(f"State is: {self.current_state}")
+
+        if self.current_state == "Awaiting Start":
+            msg.data = msg.data + "..."
+            self.status_publisher.publish(msg)
 
         
 def main(args=None):
