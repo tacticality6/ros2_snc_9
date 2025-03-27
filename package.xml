@@ -3,8 +3,9 @@
 <package format="3">
   <name>ros2_snc_9</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="s39477643@student.rmit.edu.au">rmitaiil</maintainer>
+  <description>Package containing an implementation of the ROS2 Search & Rescue Challenge (SNC) for Programming Autonomous Robots</description>
+  <maintainer email="michael.reece@live.com.au">Michael R (s3947763)</maintainer>
+  
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
