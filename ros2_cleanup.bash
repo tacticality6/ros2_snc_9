@@ -16,7 +16,6 @@ if [ ! -d "$WS_DIR" ]; then
     exit 1
 fi
 
-cd $WS_DIR
 
 # Check if the package exists
 if [ ! -d "$SRC_DIR" ]; then
