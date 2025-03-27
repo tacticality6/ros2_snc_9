@@ -3,7 +3,7 @@
 # === CONFIGURATION ===
 ROS2_VERSION="humble"  # Change if using another ROS 2 version
 WS_DIR=~/ros2_ws        # Adjust workspace path as needed
-PACKAGE_NAME="ros2_snc_9"
+PACKAGE_NAME="ros2_snc_9" # Change to your package name
 
 
 

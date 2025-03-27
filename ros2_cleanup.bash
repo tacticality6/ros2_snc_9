@@ -1,8 +1,22 @@
 #!/bin/bash
 
 PACKAGE_NAME="ros2_snc_9" # Change this to your package name
-WS_DIR=~/ros2_ws  # Change this if your workspace is in a different location
+
+if [ -z "$1" ]; then
+    WS_DIR=~/ros2_ws  # Default Workspace directory
+else
+    WS_DIR=$1
+fi
+
 SRC_DIR="$WS_DIR/src/$PACKAGE_NAME"
+
+# Check if workspace exists
+if [ ! -d "$WS_DIR" ]; then
+    echo "Error: Workspace '$WS_DIR' not found. Did you forget to pass the workspace as an argument?"
+    exit 1
+fi
+
+cd $WS_DIR
 
 # Check if the package exists
 if [ ! -d "$SRC_DIR" ]; then
