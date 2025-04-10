@@ -13,6 +13,7 @@ class NavigationNode(Node):
         super().__init__(node_name)
 
         self.exploring = False
+        self.exploreLiteActive = False
 
         self.update_timer = self.create_timer(1, self.timer_callback)
 
@@ -41,8 +42,20 @@ class NavigationNode(Node):
             self.exploring = False
     
     def timer_callback(self):
+        
         if self.exploring:
             self.get_logger().info("Exploring...")
-            self.explore_toggle_pub.publish(Bool(True))
+            if not self.exploreLiteActive:
+                self.get_logger().info("Resuming Exploration...")
+                self.exploreLiteActive = True
+                msg = Bool()
+                msg.data = self.exploreLiteActive
+                self.explore_toggle_pub.publish(msg)
+
         else:
-            self.explore_toggle_pub.publish(Bool(False))
+            if self.exploreLiteActive:
+                self.get_logger().info("Pausing Exploration...")
+                self.exploreLiteActive = False
+                msg = Bool()
+                msg.data = self.exploreLiteActive
+                self.explore_toggle_pub.publish(msg)
