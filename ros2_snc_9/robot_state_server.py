@@ -2,7 +2,7 @@
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
+from std_msgs.msg import String, Empty
 from ros2_snc_9_interfaces.srv import State
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 
@@ -14,7 +14,7 @@ class StateServer(Node):
 
 
         self.current_state = "Awaiting Start"
-        self.state_list = ['Awaiting Start', 'Exploring', 'Returning Home']
+        self.state_list = ['Awaiting Start', 'Exploring', 'Returning Home', 'Manual INTERVENTION']
 
         self.state_publisher = self.create_publisher(
             String, 
@@ -39,6 +39,28 @@ class StateServer(Node):
             QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
         )
 
+        #subscriptions to intervention topics
+        self.start_intervention_sub = self.create_subscription(
+            Empty,
+            '/trigger_start',
+            self.start_intervention_callback,
+            QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
+        )
+
+        self.teleop_intervention_sub = self.create_subscription(
+            Empty,
+            '/trigger_teleop',
+            self.teleop_intervention_callback,
+            QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
+        )
+
+        self.return_intervention_sub = self.create_subscription(
+            Empty,
+            '/trigger_home',
+            self.return_intervention_callback,
+            QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
+        )
+
         self.get_logger().info("State Manager Ready...")
 
 
@@ -60,6 +82,29 @@ class StateServer(Node):
         if self.current_state == "Awaiting Start":
             msg.data = msg.data + "..."
             self.status_publisher.publish(msg)
+
+    
+    def start_intervention_callback(self, msg):
+        self.current_state = 'Exploring'
+        newMsg = String()
+        newMsg.data = "Start Trigger Intervention Received"
+        self.get_logger().info(newMsg.data)
+        self.status_publisher.publish(newMsg)
+    
+    def return_intervention_callback(self, msg):
+        self.current_state = 'Returning Home'
+        newMsg = String()
+        newMsg.data = "Return Home Intervention Received"
+        self.get_logger().info(newMsg.data)
+        self.status_publisher.publish(newMsg)
+    
+    def teleop_intervention_callback(self, msg):
+        self.current_state = 'Manual INTERVENTION'
+        newMsg = String()
+        newMsg.data = "Teleop Intervention Received"
+        self.get_logger().info(newMsg.data)
+        self.status_publisher.publish(newMsg)
+        #TODO: Implement teleop
 
         
 def main(args=None):
