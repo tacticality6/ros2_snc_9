@@ -2,8 +2,7 @@
 
 import rclpy
 from rclpy.node import Node
-from std_msgs import String
-from std_msgs import Bool
+from std_msgs.msg import String, Bool
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 
 
