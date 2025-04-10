@@ -3,6 +3,7 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs import String
+from std_msgs import Bool
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 
 
@@ -26,6 +27,12 @@ class NavigationNode(Node):
             '/snc_status',
             QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
         )
+
+        self.explore_toggle_pub = self.create_publisher(
+            Bool,
+            'explore/resume',
+            QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
+        )
     
     def state_callback(self, msg):
         if msg.data == "Exploring":
@@ -36,3 +43,6 @@ class NavigationNode(Node):
     def timer_callback(self):
         if self.exploring:
             self.get_logger().info("Exploring...")
+            self.explore_toggle_pub.publish(Bool(True))
+        else:
+            self.explore_toggle_pub.publish(Bool(False))
