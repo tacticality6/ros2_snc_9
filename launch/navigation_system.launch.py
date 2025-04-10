@@ -19,7 +19,7 @@ def generate_launch_description():
 
         Node(
             package='ros2_snc_9',
-            executable='state_server_executable',
+            executable='state_node_executable',
             name='state_server',
             output='screen'
         ),
