@@ -59,3 +59,21 @@ class NavigationNode(Node):
                 msg = Bool()
                 msg.data = self.exploreLiteActive
                 self.explore_toggle_pub.publish(msg)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    nav_node = NavigationNode()
+
+    try:
+        rclpy.spin(nav_node)
+    except KeyboardInterrupt:
+        pass
+
+    # Destroy the node explicitly
+    nav_node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()

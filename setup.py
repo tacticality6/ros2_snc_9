@@ -24,7 +24,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'state_node_executable = ros2_snc_9.robot_state_server:main'
+            'state_node_executable = ros2_snc_9.robot_state_server:main',
+            'nav_node_executable = ros2_snc_9.navigation_logic_node:main',
         ],
     },
 )
