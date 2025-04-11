@@ -63,7 +63,7 @@ class NavigationNode(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    nav_node = NavigationNode()
+    nav_node = NavigationNode("navigation_logic_node")
 
     try:
         rclpy.spin(nav_node)
