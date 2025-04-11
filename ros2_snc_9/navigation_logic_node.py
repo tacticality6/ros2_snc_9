@@ -2,7 +2,7 @@
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String, Bool
+from std_msgs.msg import String, Bool, Empty
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 
 
@@ -33,6 +33,27 @@ class NavigationNode(Node):
             'explore/resume',
             QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
         )
+
+        #reset map on load
+        self.client = self.create_client(Empty, '/slam_toolbox/clear')
+
+        while not self.client.wait_for_service(timeout_sec=2.0):
+            self.get_logger().info('Waiting for /slam_toolbox/clear service...')
+
+        self.send_clear_request()
+        self.get_logger().info("Navigation Logic Up. Awaiting Start...")
+
+    def send_clear_request(self):
+        req = Empty.Request()
+        future = self.client.call_async(req)
+        future.add_done_callback(self.clear_response_callback)
+
+    def clear_response_callback(self, future):
+        try:
+            future.result()
+            self.get_logger().info('Successfully reset SLAM map')
+        except Exception as e:
+            self.get_logger().error(f'Service call failed: {e}')
     
     def state_callback(self, msg):
         if msg.data == "Exploring":
@@ -43,9 +64,8 @@ class NavigationNode(Node):
     def timer_callback(self):
         
         if self.exploring:
-            self.get_logger().info("Exploring...")
             if not self.exploreLiteActive:
-                self.get_logger().info("Resuming Exploration...")
+                self.get_logger().info("Exploring...")
                 self.exploreLiteActive = True
                 msg = Bool()
                 msg.data = self.exploreLiteActive
