@@ -37,11 +37,8 @@ class NavigationNode(Node):
 
         #reset map on load
         self.client = self.create_client(Clear, '/slam_toolbox/clear')
-
-        while not self.client.wait_for_service(timeout_sec=2.0):
-            self.get_logger().info('Waiting for /slam_toolbox/clear service...')
-
         self.send_clear_request()
+        
         self.get_logger().info("Navigation Logic Up. Awaiting Start...")
 
     def send_clear_request(self):
