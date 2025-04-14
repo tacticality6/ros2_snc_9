@@ -37,7 +37,7 @@ class NavigationNode(Node):
 
         self.motion_pub = self.create_publisher(
             Twist,
-            'cmd_vel/',
+            '/cmd_vel',
             QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
         )        
 
