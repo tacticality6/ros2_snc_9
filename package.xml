@@ -13,6 +13,7 @@
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
   <depend>nav_msgs</depend>
+  <depend>geometry_msgs</depend>
   <depend>ros2_snc_9_interfaces</depend>
   <depend>visualisation_msgs</depend>
 
