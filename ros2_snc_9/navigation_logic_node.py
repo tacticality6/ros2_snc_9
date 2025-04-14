@@ -3,7 +3,7 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String, Bool
-from slam_toolbox.srv import Clear
+from geometry_msgs.msg import Twist
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 
 
@@ -35,27 +35,18 @@ class NavigationNode(Node):
             QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
         )
 
-        #reset map on load
-        self.client = self.create_client(Clear, '/slam_toolbox/clear')
-        self.send_clear_request()
-        
+        self.motion_pub = self.create_publisher(
+            Twist,
+            'cmd_vel/',
+            QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
+        )        
+
         self.get_logger().info("Navigation Logic Up. Awaiting Start...")
-
-    def send_clear_request(self):
-        req = Clear.Request()
-        future = self.client.call_async(req)
-        future.add_done_callback(self.clear_response_callback)
-
-    def clear_response_callback(self, future):
-        try:
-            future.result()
-            self.get_logger().info('Successfully reset SLAM map')
-        except Exception as e:
-            self.get_logger().error(f'Service call failed: {e}')
     
     def state_callback(self, msg):
         if msg.data == "Exploring":
             self.exploring = True
+            self.doInitialMovement()
         else:
             self.exploring = False
     
@@ -76,6 +67,33 @@ class NavigationNode(Node):
                 msg = Bool()
                 msg.data = self.exploreLiteActive
                 self.explore_toggle_pub.publish(msg)
+    
+    def doInitialMovement(self):
+        initialMove = Twist()
+        initialMove.angular.z = 0.5
+
+        msg = String()
+        msg.data = 'Sending initial motion command...'
+        self.get_logger().info(msg.data)
+        self.status_publisher().publish(msg)
+        self.motion_pub.publish(initialMove)
+
+        self.stop_timer = self.create_timer(1.0, self.stop_initial)
+
+    def stop_initial(self):
+        #Stop the robot
+        self.stop_timer.cancel()
+
+        twist = Twist()
+        twist.linear.x = 0.0
+        twist.angular.z = 0.0
+        self.motion_pub.publish(twist)
+
+        msg = String()
+        msg.data = 'Stopping initial motion'
+        self.get_logger().info(msg.data)
+        self.status_publisher().publish(msg)
+
 
 
 def main(args=None):
