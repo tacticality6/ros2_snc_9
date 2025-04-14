@@ -71,6 +71,7 @@ class NavigationNode(Node):
     def doInitialMovement(self):
         initialMove = Twist()
         initialMove.angular.z = 0.5
+        initialMove.linear.x = 0.1
 
         msg = String()
         msg.data = 'Sending initial motion command...'
