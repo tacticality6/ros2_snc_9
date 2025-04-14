@@ -93,7 +93,7 @@ class NavigationNode(Node):
         msg = String()
         msg.data = 'Stopping initial motion'
         self.get_logger().info(msg.data)
-        self.status_publisher().publish(msg)
+        self.status_publisher.publish(msg)
 
 
 
