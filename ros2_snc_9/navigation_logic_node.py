@@ -2,7 +2,8 @@
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String, Bool, Empty
+from std_msgs.msg import String, Bool
+from slam_toolbox.srv import Clear
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 
 
@@ -35,7 +36,7 @@ class NavigationNode(Node):
         )
 
         #reset map on load
-        self.client = self.create_client(Empty, '/slam_toolbox/clear')
+        self.client = self.create_client(Clear, '/slam_toolbox/clear')
 
         while not self.client.wait_for_service(timeout_sec=2.0):
             self.get_logger().info('Waiting for /slam_toolbox/clear service...')
@@ -44,7 +45,7 @@ class NavigationNode(Node):
         self.get_logger().info("Navigation Logic Up. Awaiting Start...")
 
     def send_clear_request(self):
-        req = Empty.Request()
+        req = Clear.Request()
         future = self.client.call_async(req)
         future.add_done_callback(self.clear_response_callback)
 
