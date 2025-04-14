@@ -76,7 +76,7 @@ class NavigationNode(Node):
         msg = String()
         msg.data = 'Sending initial motion command...'
         self.get_logger().info(msg.data)
-        self.status_publisher().publish(msg)
+        self.status_publisher.publish(msg)
         self.motion_pub.publish(initialMove)
 
         self.stop_timer = self.create_timer(1.0, self.stop_initial)
