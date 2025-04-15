@@ -14,7 +14,8 @@ def generate_launch_description():
     return LaunchDescription([
         # Include Explore Lite launch file
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(explore_lite_launch_file)
+            PythonLaunchDescriptionSource(explore_lite_launch_file),
+            launch_arguments=[{'transform_tolerance':0.25}]
         ),
 
         Node(
