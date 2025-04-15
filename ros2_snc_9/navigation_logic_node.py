@@ -46,7 +46,7 @@ class NavigationNode(Node):
     def state_callback(self, msg):
         if msg.data == "Exploring":
             self.exploring = True
-            self.doInitialMovement()
+            
         else:
             self.exploring = False
     
@@ -59,6 +59,7 @@ class NavigationNode(Node):
                 msg = Bool()
                 msg.data = self.exploreLiteActive
                 self.explore_toggle_pub.publish(msg)
+                self.doInitialMovement()
 
         else:
             if self.exploreLiteActive:
