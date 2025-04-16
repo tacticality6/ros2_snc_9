@@ -16,6 +16,9 @@ class DetectionNode(Node):
     def __init__(self):
         super().__init__('detection_node')
         qos_profile = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT, depth=10)
+
+        #set desired number of hazards to find
+        self.num_hazards = 5
         
         # Publisher for detected hazards
         self.hazard_publisher = self.create_publisher(String, '/detected_hazards', qos_profile)
@@ -250,8 +253,26 @@ class DetectionNode(Node):
                 msg.data = " | ".join(hazard_messages)
                 self.hazard_publisher.publish(msg)
                 self.get_logger().info(f'Published: "{msg.data}"')
+            if len(hazard_messages) == self.num_hazards:
+                request = State.Request()
+                request.new_state = "Returning Home"
+
+                future = self.state_client.call_async(request)
+                future.add_done_callback(self.set_return_home_callback)
         else:
             self.get_logger().warn("Received unexpected /objects message format")
+    
+    def set_return_home_callback(self, future):
+        try:
+            response = future.result()
+            if response.success:
+                self.get_logger().info("Successfully set state to 'Returning Home'")
+                # Set the flag to indicate successful service call
+                self.service_called_successfully = True
+            else:
+                self.get_logger().warn("Failed to set state to 'Returning Home'")
+        except Exception as e:
+            self.get_logger().error(f"Service call failed: {str(e)}")
 
 def main(args=None):
     rclpy.init(args=args)
