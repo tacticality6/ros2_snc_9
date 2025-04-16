@@ -258,6 +258,7 @@ class DetectionNode(Node):
                 request.new_state = "Returning Home"
 
                 future = self.state_client.call_async(request)
+                self.get_logger().info("Attempting to return home")
                 future.add_done_callback(self.set_return_home_callback)
         else:
             self.get_logger().warn("Received unexpected /objects message format")
