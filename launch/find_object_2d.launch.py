@@ -26,7 +26,7 @@ def generate_launch_description():
 
         # Launch arguments
         # Set to false when running after training is finished
-        DeclareLaunchArgument('gui', default_value='true', description='Launch GUI.'),
+        DeclareLaunchArgument('gui', default_value='false', description='Launch GUI.'),
         
         # Our default camera topic. If streaming images, consider using the compressed image instead
         DeclareLaunchArgument('image_topic', default_value=image_topic, description='Image topic from the camera (best_effort).'),
@@ -35,9 +35,9 @@ def generate_launch_description():
         
         # Path where you have saved the existing trained images
         # Uses the path to the AIIL Workspace, but this could be set to anywhere
-        #LogInfo(msg=('AIIL_CHECKOUT_DIR, ', EnvironmentVariable(name='AIIL_CHECKOUT_DIR'))),
+        # LogInfo(msg=('AIIL_CHECKOUT_DIR, ', EnvironmentVariable(name='AIIL_CHECKOUT_DIR'))),
         DeclareLaunchArgument('objects_path', 
-                               default_value=[EnvironmentVariable(name='AIIL_CHECKOUT_DIR'),'/objects'],
+                               default_value=['/ros2_ws/objects'],
                                description='Directory containing objects to load on initialization.'),
         
         # Find Object 2D Setting. By default just use the standard settings, but you can copy and tweak this file if you wish
