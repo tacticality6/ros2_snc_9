@@ -12,7 +12,7 @@ def generate_launch_description():
         get_package_share_directory('explore_lite'), 'launch', 'explore.launch.py')
     
     find_object_2d_launch_file = os.path.join(
-        get_package_share_directory('aiil_rosbot_demo'), 'launch', 'find_object_2d.launch.py' 
+        get_package_share_directory('ros2_snc_9'), 'launch', 'find_object_2d.launch.py' 
     )
     
     return LaunchDescription([
