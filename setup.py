@@ -26,7 +26,8 @@ setup(
         'console_scripts': [
             'state_node_executable = ros2_snc_9.robot_state_server:main',
             'nav_node_executable = ros2_snc_9.navigation_logic_node:main',
-            'hazard_detection_executable = ros2_snc_9.marker_detection_node:main'
+            'hazard_detection_executable = ros2_snc_9.marker_detection_node:main',
+            'position_tracking_executable = ros2_snc_9.position_tracking_node:main'
         ],
     },
 )

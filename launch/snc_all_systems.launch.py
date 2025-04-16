@@ -44,7 +44,7 @@ def generate_launch_description():
         # Start Position Tracking & Return home node
         Node(
             package='ros2_snc_9',
-            executable='position_tracking_node.py',
+            executable='position_tracking_executable',
             name='position_tracking',
             parameters=[
                 {'tracking_interval': 2.0},
