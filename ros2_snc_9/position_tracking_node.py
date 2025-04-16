@@ -1,6 +1,9 @@
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped, Twist
+from std_msgs.msg import String
+from ros2_snc_9_interfaces.srv import State
+from rclpy.qos import QoSProfile, ReliabilityPolicy
 from nav_msgs.msg import Path
 from tf2_ros import TransformListener, Buffer
 import tf2_ros
@@ -38,7 +41,18 @@ class PositionTrackingNode(Node):
         self.follow_waypoints_client = ActionClient(self, FollowWaypoints, self.follow_waypoints_action_name)
         self.is_returning_home = False
 
+        self.state_subscriber = self.create_subscription(
+            String,
+            '/snc_state',
+            self.state_callback,
+            QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
+        )
+
         self.get_logger().info('Position tracking node initialized (using Nav2 Waypoint Following).')
+    
+    def state_callback(self, msg):
+        if msg.data == "Returning Home":
+            self.start_return_home()
 
     def track_position(self):
         if self.is_exploring:
