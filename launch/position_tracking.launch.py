@@ -8,7 +8,7 @@ def generate_launch_description():
             executable='position_tracking_node.py',
             name='position_tracking',
             parameters=[
-                {'tracking_interval': 0.5},
+                {'tracking_interval': 2},
                 {'path_history_topic': 'robot_path_explore'},
                 {'return_path_topic': 'robot_path_return'},
                 {'base_frame': 'base_link'},
