@@ -15,7 +15,7 @@ import math
 class DetectionNode(Node):
     def __init__(self):
         super().__init__('detection_node')
-        qos_profile = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT, depth=10)
+        qos_profile = QoSProfile(reliability=ReliabilityPolicy.RELIABLE, depth=10)
 
         #set desired number of hazards to find
         self.num_hazards = 5
@@ -37,7 +37,7 @@ class DetectionNode(Node):
             LaserScan,
             '/scan',
             self.scan_callback,
-            qos_profile
+            QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT, depth=10)
         )
 
         # TF2 buffer and listener
