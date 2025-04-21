@@ -19,6 +19,8 @@ class DetectionNode(Node):
 
         #set desired number of hazards to find
         self.num_hazards = 5
+
+        self.hazard_messages = []
         
         # Publisher for detected hazards
         self.hazard_publisher = self.create_publisher(String, '/detected_hazards', qos_profile)
