@@ -60,7 +60,9 @@ def generate_launch_description():
                 {'path_history_topic': 'path_explore'},
                 {'return_path_topic': 'path_return'},
                 {'base_frame': 'base_link'},
-                {'map_frame': 'map'} 
+                {'map_frame': 'map',
+                 'follow_waypoints_action': 'follow_waypoints',
+                 'path_history_max_length' : 1000} 
             ]
         ),
     ])
