@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.duration import Duration
 from geometry_msgs.msg import PoseStamped, Twist
 from std_msgs.msg import String
 from ros2_snc_9_interfaces.srv import State
@@ -71,10 +72,12 @@ class PositionTrackingNode(Node):
         if self.robot_state == RobotState.EXPLORING:
             try:
                 now = self.get_clock().now()
+                buffer_time = Duration(seconds=0.05)
+                safe_time = now - buffer_time
                 transform = self.tf_buffer.lookup_transform(
                     self.map_frame,
                     self.base_frame,
-                    now,
+                    safe_time,
                     timeout=rclpy.duration.Duration(seconds=0.1)
                 )
 
