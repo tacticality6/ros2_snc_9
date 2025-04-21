@@ -56,6 +56,9 @@ class DetectionNode(Node):
         # Flag to track if we have successfully called the service
         self.service_called_successfully = False
 
+        # Timer to publish detected hazards periodically
+        self.timer = self.create_timer(2.0, self.publish_hazards_if_detected)
+
     # Function to get the hazard ID from the object ID
     def decode_hazard(self, object_id):
         hazard_mapping = {
@@ -215,7 +218,7 @@ class DetectionNode(Node):
     def objects_callback(self, msg):
         data = msg.data
         object_list = []
-        hazard_messages = []
+        self.hazard_messages = []
         
         if len(data) % 12 == 0:  # Each object has 12 float values
             for i in range(0, len(data), 12):
@@ -238,7 +241,7 @@ class DetectionNode(Node):
                         self.set_exploring_state(object_id, hazard_x, hazard_y)
                     elif hazard not in self.published_hazards:
                         # For other hazards, add to the messages to be published
-                        hazard_messages.append(f"Object ID {object_id} at ({hazard_x:.2f}, {hazard_y:.2f}) is Hazard {hazard}")
+                        self.hazard_messages.append(f"Object ID {object_id} at ({hazard_x:.2f}, {hazard_y:.2f}) is Hazard {hazard}")
                         self.published_hazards.append(hazard)
 
                         # Publish marker at hazard position
@@ -248,12 +251,12 @@ class DetectionNode(Node):
             self.latest_objects = object_list  # Store extracted data
             
             # Publish detected hazards if any non-99 hazards are found
-            if hazard_messages:
-                msg = String()
-                msg.data = " | ".join(hazard_messages)
-                self.hazard_publisher.publish(msg)
-                self.get_logger().info(f'Published: "{msg.data}"')
-            if len(hazard_messages) == self.num_hazards:
+            # if self.hazard_messages:
+            #     msg = String()
+            #     msg.data = " | ".join(self.hazard_messages)
+            #     self.hazard_publisher.publish(msg)
+            #     self.get_logger().info(f'Published: "{msg.data}"')
+            if len(self.hazard_messages) == self.num_hazards:
                 request = State.Request()
                 request.new_state = "Returning Home"
 
@@ -274,6 +277,14 @@ class DetectionNode(Node):
                 self.get_logger().warn("Failed to set state to 'Returning Home'")
         except Exception as e:
             self.get_logger().error(f"Service call failed: {str(e)}")
+
+    def publish_hazards_if_detected(self):
+        if self.hazard_messages:
+            msg = String()
+            msg.data = " | ".join(self.hazard_messages)
+            self.hazard_publisher.publish(msg)
+            self.get_logger().info(f'Published: "{msg.data}"')
+            self.hazard_messages.clear()
 
 def main(args=None):
     rclpy.init(args=args)
