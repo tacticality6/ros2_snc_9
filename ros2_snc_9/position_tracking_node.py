@@ -12,6 +12,7 @@ import numpy as np
 import time
 from rclpy.action import ActionClient
 from nav2_msgs.action import FollowWaypoints
+import math
 from enum import Enum
 
 class RobotState(Enum):
@@ -31,10 +32,12 @@ class PositionTrackingNode(Node):
         self.map_frame = self.declare_parameter('map_frame', 'map').get_parameter_value().string_value
         self.follow_waypoints_action_name = self.declare_parameter('follow_waypoints_action', 'follow_waypoints').get_parameter_value().string_value
         self.path_history_max_length = self.declare_parameter('path_history_max_length', 1000).get_parameter_value().integer_value  # Maximum path length
+        #self.rotation_before_return = self.declare_parameter('rotation_before_return', True).get_parameter_value().bool_value # Rotate 180 before returning
 
         # Publishers
         self.path_publisher = self.create_publisher(Path, self.path_history_topic, qos_profile_sensor_data)
         self.return_path_publisher = self.create_publisher(Path, self.return_path_topic, qos_profile_sensor_data)
+        #self.twist_publisher = self.create_publisher(Twist, 'cmd_vel', 10) # For manual rotation
 
         # TF Listener
         self.tf_buffer = Buffer()
@@ -120,6 +123,27 @@ class PositionTrackingNode(Node):
         # Reverse the explored path to go back to the start
         reversed_path = list(reversed(self.explored_path))
 
+        #reverse rotation in each pose
+        for i, pose in enumerate(reversed_path):
+            new_pos = pose.position
+            new_orientation = pose.orientation
+            roll, pitch, yaw = euler_from_quaternion(new_orientation.x,new_orientation.y,new_orientation.z,new_orientation.w)
+            new_yaw = -yaw
+
+            new_orientation = quaternion_from_euler(roll, pitch, new_yaw)
+
+            new_pose = PoseStamped()
+            new_pose.header = pose.header
+            new_pose.pose.position = new_pos
+            
+            new_pose.pose.orientation.x = new_orientation[0]
+            new_pose.pose.orientation.y = new_orientation[1]
+            new_pose.pose.orientation.z = new_orientation[2]
+            new_pose.pose.orientation.w = new_orientation[3]
+
+            reversed_path[i] = new_pose
+
+
         # Publish the return path
         path_msg = Path()
         path_msg.header.stamp = self.get_clock().now().to_msg()
@@ -173,3 +197,38 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
+def euler_from_quaternion(x,y,z,w):
+        sinr_cosp = 2 * (w * x + y * z)
+        cosr_cosp = 1 - 2 * (x * x + y * y)
+        roll = np.arctan2(sinr_cosp, cosr_cosp)
+
+        sinp = 2 * (w * y - z * x)
+        pitch = np.arcsin(sinp)
+
+        siny_cosp = 2 * (w * z + x * y)
+        cosy_cosp = 1 - 2 * (y * y + z * z)
+        yaw = np.arctan2(siny_cosp, cosy_cosp)
+
+        return roll, pitch, yaw
+
+def quaternion_from_euler(roll, pitch, yaw):
+    """
+    Converts euler roll, pitch, yaw to quaternion (w in last place)
+    quat = [x, y, z, w]
+    Bellow should be replaced when porting for ROS 2 Python tf_conversions is done.
+    """
+    cy = math.cos(yaw * 0.5)
+    sy = math.sin(yaw * 0.5)
+    cp = math.cos(pitch * 0.5)
+    sp = math.sin(pitch * 0.5)
+    cr = math.cos(roll * 0.5)
+    sr = math.sin(roll * 0.5)
+
+    q = [0] * 4
+    q[0] = cy * cp * cr + sy * sp * sr
+    q[1] = cy * cp * sr - sy * sp * cr
+    q[2] = sy * cp * sr + cy * sp * cr
+    q[3] = sy * cp * cr - cy * sp * sr
+
+    return q
