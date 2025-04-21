@@ -137,7 +137,7 @@ def main(args=None):
     position_tracking_node = PositionTrackingNode()
 
     try:
-        position_tracking_node.spin()
+        rclpy.spin(position_tracking_node)
     except KeyboardInterrupt:
         pass
 
