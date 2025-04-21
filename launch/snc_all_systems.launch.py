@@ -54,7 +54,7 @@ def generate_launch_description():
         Node(
             package='ros2_snc_9',
             executable='position_tracking_executable',
-            name='position_tracking',
+            name='position_tracking_node',
             parameters=[
                 {'tracking_interval': 2.0},
                 {'path_history_topic': 'path_explore'},
