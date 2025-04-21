@@ -125,8 +125,8 @@ class PositionTrackingNode(Node):
 
         #reverse rotation in each pose
         for i, pose in enumerate(reversed_path):
-            new_pos = pose.position
-            new_orientation = pose.orientation
+            new_pos = pose.pose.position
+            new_orientation = pose.pose.orientation
             roll, pitch, yaw = euler_from_quaternion(new_orientation.x,new_orientation.y,new_orientation.z,new_orientation.w)
             new_yaw = -yaw
 
