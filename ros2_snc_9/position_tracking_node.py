@@ -128,7 +128,7 @@ class PositionTrackingNode(Node):
             new_pos = pose.pose.position
             new_orientation = pose.pose.orientation
             roll, pitch, yaw = euler_from_quaternion(new_orientation.x,new_orientation.y,new_orientation.z,new_orientation.w)
-            new_yaw = -yaw
+            new_yaw = yaw + math.pi
 
             new_orientation = quaternion_from_euler(roll, pitch, new_yaw)
 
@@ -172,12 +172,9 @@ class PositionTrackingNode(Node):
 
     def get_result_callback(self, future):
         result = future.result()
-        if result:
-            self.get_logger().info(f'Return to home finished with status: {result.result.success}')
-            self.robot_state = RobotState.IDLE
-        else:
-            self.get_logger().error('Return to home failed to get result.')
-            self.robot_state = RobotState.EXPLORING # Revert state on failure
+        
+        self.get_logger().info("Return to home finished!")
+
         self._goal_handle = None
 
     def feedback_callback(self, feedback_msg):
