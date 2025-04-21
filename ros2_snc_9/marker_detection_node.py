@@ -162,7 +162,7 @@ class DetectionNode(Node):
         marker.header.frame_id = "map"
         marker.header.stamp = self.get_clock().now().to_msg()
         marker.ns = "hazards"
-        marker.id = object_id
+        marker.id = hazard_id
         marker.type = Marker.SPHERE
         marker.action = Marker.ADD
         marker.pose.position.x = x
