@@ -17,9 +17,9 @@ class PositionTrackingNode(Node):
         super().__init__('position_tracking_node')
 
         # Parameters (can be configured in the launch file)
-        self.tracking_interval = self.declare_parameter('tracking_interval', 1.0).get_parameter_value().double_value  # seconds
-        self.path_history_topic = self.declare_parameter('path_history_topic', 'robot_path_explore').get_parameter_value().string_value
-        self.return_path_topic = self.declare_parameter('return_path_topic', 'robot_path_return').get_parameter_value().string_value
+        self.tracking_interval = self.declare_parameter('tracking_interval', 1.0).get_parameter_value().double_value 
+        self.path_history_topic = self.declare_parameter('path_history_topic', 'path_explore').get_parameter_value().string_value
+        self.return_path_topic = self.declare_parameter('return_path_topic', 'path_return').get_parameter_value().string_value
         self.base_frame = self.declare_parameter('base_frame', 'base_link').get_parameter_value().string_value
         self.map_frame = self.declare_parameter('map_frame', 'map').get_parameter_value().string_value
         self.follow_waypoints_action_name = self.declare_parameter('follow_waypoints_action', 'follow_waypoints').get_parameter_value().string_value
