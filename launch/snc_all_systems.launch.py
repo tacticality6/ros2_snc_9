@@ -34,6 +34,22 @@ def generate_launch_description():
             output='screen'
         ),
 
+        # Start Position Tracking & Return home node
+        Node(
+            package='ros2_snc_9',
+            executable='position_tracking_executable',
+            name='position_tracking',
+            parameters=[
+                {'tracking_interval': 2.0},
+                {'path_history_topic': 'path_explore'},
+                {'return_path_topic': 'path_return'},
+                {'base_frame': 'base_link'},
+                {'map_frame': 'map'},
+                {'follow_waypoints_action': 'follow_waypoints'},
+                {'path_history_max_length' : 1000} 
+            ]
+        ),
+
         # Start Nav Node
         Node(
             package='ros2_snc_9',
@@ -50,19 +66,5 @@ def generate_launch_description():
             output='screen'
         ),
 
-        # Start Position Tracking & Return home node
-        Node(
-            package='ros2_snc_9',
-            executable='position_tracking_executable',
-            name='position_tracking',
-            parameters=[
-                {'tracking_interval': 2.0},
-                {'path_history_topic': 'path_explore'},
-                {'return_path_topic': 'path_return'},
-                {'base_frame': 'base_link'},
-                {'map_frame': 'map'},
-                {'follow_waypoints_action': 'follow_waypoints'},
-                {'path_history_max_length' : 1000} 
-            ]
-        ),
+        
     ])
