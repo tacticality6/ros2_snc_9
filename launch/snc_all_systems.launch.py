@@ -39,6 +39,7 @@ def generate_launch_description():
             package='ros2_snc_9',
             executable='position_tracking_executable',
             name='position_tracking',
+            output='screen',
             parameters=[
                 {'tracking_interval': 2.0},
                 {'path_history_topic': 'path_explore'},
