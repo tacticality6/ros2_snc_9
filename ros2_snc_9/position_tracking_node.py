@@ -135,17 +135,14 @@ class PositionTrackingNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     position_tracking_node = PositionTrackingNode()
-    # Spin in a separate thread to allow calling start_return_home when needed
-    executor = rclpy.executors.SingleThreadedExecutor()
-    executor.add_node(position_tracking_node)
 
     try:
-        executor.spin()
+        position_tracking_node.spin()
     except KeyboardInterrupt:
         pass
-    finally:
-        position_tracking_node.destroy_node()
-        rclpy.shutdown()
+
+    position_tracking_node.destroy_node()
+    rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
