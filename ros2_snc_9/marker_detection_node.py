@@ -118,7 +118,7 @@ class DetectionNode(Node):
         # Calculate bearing from relative coordinates
         bearing = math.atan2(relative_y, relative_x)
         # Convert bearing to laser scan angle (relative to robot's forward direction)
-        scan_angle = bearing + robot_yaw  # Adjust for robot's orientation
+        scan_angle = bearing # Adjust for robot's orientation
         # Normalize angle to [0, 2pi]
         scan_angle = scan_angle % (2 * math.pi)
         
@@ -142,8 +142,8 @@ class DetectionNode(Node):
             return None, None
 
         # Calculate hazard position in map frame
-        hazard_x = robot_x + distance * math.cos(robot_yaw + bearing)
-        hazard_y = robot_y + distance * math.sin(robot_yaw + bearing)
+        hazard_x = robot_x + distance * math.cos(robot_yaw)
+        hazard_y = robot_y + distance * math.sin(robot_yaw)
 
         return hazard_x, hazard_y
 
