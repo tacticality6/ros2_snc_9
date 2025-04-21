@@ -56,9 +56,6 @@ class NavigationNode(Node):
             if not self.exploreLiteActive:
                 self.get_logger().info("Exploring...")
                 self.exploreLiteActive = True
-                msg = Bool()
-                msg.data = self.exploreLiteActive
-                self.explore_toggle_pub.publish(msg)
                 self.doInitialMovement()
 
         else:
@@ -71,7 +68,7 @@ class NavigationNode(Node):
     
     def doInitialMovement(self):
         initialMove = Twist()
-        initialMove.angular.z = 0.5
+        initialMove.angular.z = 0.3
         initialMove.linear.x = 0.1
 
         msg = String()
@@ -80,7 +77,7 @@ class NavigationNode(Node):
         self.status_publisher.publish(msg)
         self.motion_pub.publish(initialMove)
 
-        self.stop_timer = self.create_timer(1.0, self.stop_initial)
+        self.stop_timer = self.create_timer(3.0, self.stop_initial)
 
     def stop_initial(self):
         #Stop the robot
@@ -95,6 +92,11 @@ class NavigationNode(Node):
         msg.data = 'Stopping initial motion'
         self.get_logger().info(msg.data)
         self.status_publisher.publish(msg)
+
+        #initialise explore lite
+        msg = Bool()
+        msg.data = True
+        self.explore_toggle_pub.publish(msg)
 
 
 
