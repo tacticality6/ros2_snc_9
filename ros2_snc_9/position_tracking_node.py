@@ -142,6 +142,7 @@ class PositionTrackingNode(Node):
             new_pose.pose.orientation.w = new_orientation[3]
 
             reversed_path[i] = new_pose
+            self.get_logger().debug(f'Rotated pose {i+1}/{len(reversed_path)}.')
 
 
         # Publish the return path
@@ -150,10 +151,12 @@ class PositionTrackingNode(Node):
         path_msg.header.frame_id = self.map_frame
         path_msg.poses = reversed_path
         self.return_path_publisher.publish(path_msg)
+        self.get_logger().info(f'Published return path with {len(path_msg.poses)} poses on topic: {self.return_path_topic}')
 
         # Send the reversed path as a FollowWaypoints goal
         goal_msg = FollowWaypoints.Goal()
         goal_msg.poses = reversed_path
+        self.get_logger().info('Sending FollowWaypoints goal...')
 
         self._send_goal_future = self.follow_waypoints_client.send_goal_async(goal_msg, feedback_callback=self.feedback_callback)
         self._send_goal_future.add_done_callback(self.goal_response_callback)
@@ -178,7 +181,8 @@ class PositionTrackingNode(Node):
         self._goal_handle = None
 
     def feedback_callback(self, feedback_msg):
-        pass
+        self.get_logger().debug(f'FollowWaypoints feedback received: {feedback_msg}')
+    
 
 def main(args=None):
     rclpy.init(args=args)
