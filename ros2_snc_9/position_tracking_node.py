@@ -34,22 +34,37 @@ class PositionTrackingNode(Node):
         self.path_history_max_length = self.declare_parameter('path_history_max_length', 1000).get_parameter_value().integer_value  # Maximum path length
         #self.rotation_before_return = self.declare_parameter('rotation_before_return', True).get_parameter_value().bool_value # Rotate 180 before returning
 
+        self.get_logger().info(f'Tracking interval: {self.tracking_interval}')
+        self.get_logger().info(f'Path history topic: {self.path_history_topic}')
+        self.get_logger().info(f'Return path topic: {self.return_path_topic}')
+        self.get_logger().info(f'Base frame: {self.base_frame}')
+        self.get_logger().info(f'Map frame: {self.map_frame}')
+        self.get_logger().info(f'Follow waypoints action name: {self.follow_waypoints_action_name}')
+        self.get_logger().info(f'Path history max length: {self.path_history_max_length}')
+
         # Publishers
         self.path_publisher = self.create_publisher(Path, self.path_history_topic, qos_profile_sensor_data)
         self.return_path_publisher = self.create_publisher(Path, self.return_path_topic, qos_profile_sensor_data)
         #self.twist_publisher = self.create_publisher(Twist, 'cmd_vel', 10) # For manual rotation
 
+        self.get_logger().info(f'Publisher created on topic: {self.path_history_topic}')
+        self.get_logger().info(f'Publisher created on topic: {self.return_path_topic}')
+
         # TF Listener
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.get_logger().info('TF Listener initialized.')
 
         # Internal variables
         self.explored_path = []  # List to store PoseStamped messages of the explored path
         self.robot_state = RobotState.EXPLORING
+        self.get_logger().info(f'Initial robot state: {self.robot_state.name}')
         self.path_tracking_timer = self.create_timer(self.tracking_interval, self.track_position)
+        self.get_logger().info(f'Path tracking timer created with interval: {self.tracking_interval}')
 
         # Nav2 Action Client for Waypoint Following
         self.follow_waypoints_client = ActionClient(self, FollowWaypoints, self.follow_waypoints_action_name)
+        self.get_logger().info(f'Action client created for: {self.follow_waypoints_action_name}')
         self._goal_handle = None
 
         # Subscriber for state changes
@@ -60,16 +75,20 @@ class PositionTrackingNode(Node):
             QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
         )
 
-        self.get_logger().info('Position tracking node initialized (using Nav2 Waypoint Following).')
+        self.get_logger().info(f'Subscribed to state topic: /snc_state')
+        self.get_logger().info('Position tracking node initialized.')
 
     def state_callback(self, msg):
+        self.get_logger().info(f'Received state message: "{msg.data}"')
         if msg.data == "Returning Home" and self.robot_state == RobotState.EXPLORING:
+            self.get_logger().info('State changed to "Returning Home". Starting return sequence.')
             self.start_return_home()
         elif msg.data == "Exploring" and self.robot_state == RobotState.RETURNING_HOME:
             self.get_logger().info('Received "Exploring" state while returning home. Ignoring.')
         elif msg.data == "Idle" and self.robot_state == RobotState.RETURNING_HOME:
             self.get_logger().info('Received "Idle" state. Assuming return home is complete.')
             self.robot_state = RobotState.IDLE
+            self.get_logger().info(f'Robot state updated to: {self.robot_state.name}')
 
     def track_position(self):
         if self.robot_state == RobotState.EXPLORING:
@@ -84,6 +103,8 @@ class PositionTrackingNode(Node):
                     timeout=rclpy.duration.Duration(seconds=0.1)
                 )
 
+                self.get_logger().debug(f'Successfully looked up transform from {self.base_frame} to {self.map_frame}')
+
                 pose_stamped = PoseStamped()
                 pose_stamped.header.stamp = now.to_msg()
                 pose_stamped.header.frame_id = self.map_frame
@@ -93,10 +114,12 @@ class PositionTrackingNode(Node):
                 pose_stamped.pose.orientation = transform.transform.rotation
 
                 self.explored_path.append(pose_stamped)
+                self.get_logger().debug(f'Added new pose to explored path: ({pose_stamped.pose.position.x}, {pose_stamped.pose.position.y})')
 
                 # Limit the length of the explored path
                 if len(self.explored_path) > self.path_history_max_length:
                     self.explored_path.pop(0)
+                    self.get_logger().debug('Explored path length exceeded max. Removed oldest pose.')
 
                 # Publish the current path
                 path_msg = Path()
@@ -104,6 +127,7 @@ class PositionTrackingNode(Node):
                 path_msg.header.frame_id = self.map_frame
                 path_msg.poses = list(self.explored_path)
                 self.path_publisher.publish(path_msg)
+                self.get_logger().debug(f'Published explored path with {len(path_msg.poses)} poses.')
 
             except tf2_ros.TransformException as ex:
                 self.get_logger().warn(f'Could not transform {self.base_frame} to {self.map_frame}: {ex}')
@@ -114,14 +138,16 @@ class PositionTrackingNode(Node):
             return
 
         if self.robot_state == RobotState.RETURNING_HOME:
-            self.get_logger().info('Return home already in progress.')
+            self.get_logger().info('Return home already in progress....')
             return
 
         self.get_logger().info('Starting return to home using Nav2 Waypoint Following.')
         self.robot_state = RobotState.RETURNING_HOME
+        self.get_logger().info(f'Robot state updated to: {self.robot_state.name}')
 
         # Reverse the explored path to go back to the start
         reversed_path = list(reversed(self.explored_path))
+        self.get_logger().info(f'Reversed explored path with {len(reversed_path)} poses.')
 
         #reverse rotation in each pose
         for i, pose in enumerate(reversed_path):
@@ -175,8 +201,9 @@ class PositionTrackingNode(Node):
 
     def get_result_callback(self, future):
         result = future.result()
-        
-        self.get_logger().info("Return to home finished!")
+        self.get_logger().info(f"Return to home finished with result: {result}")
+        self.robot_state = RobotState.IDLE
+        self.get_logger().info
 
         self._goal_handle = None
 
