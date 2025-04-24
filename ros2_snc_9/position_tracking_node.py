@@ -86,12 +86,12 @@ class PositionTrackingNode(Node):
         if self.robot_state == RobotState.EXPLORING:
             try:
                 now = self.get_clock().now()
-                # buffer_time = Duration(seconds=0.1)
-                # safe_time = now - buffer_time
+                buffer_time = Duration(seconds=1.0)
+                safe_time = now - buffer_time
                 transform = self.tf_buffer.lookup_transform(
                     self.map_frame,
                     self.base_frame,
-                    0,
+                    safe_time,
                     timeout=rclpy.duration.Duration(seconds=0.1)
                 )
 
