@@ -80,6 +80,7 @@ class PositionTrackingNode(Node):
         elif msg.data == "Exploring" and self.robot_state == RobotState.STARTING:
             self.path_tracking_timer = self.create_timer(self.tracking_interval, self.track_position)
             self.track_position()
+            self.robot_state = RobotState.EXPLORING
             self.get_logger().info(f'Path tracking timer created with interval: {self.tracking_interval}')
 
     def track_position(self):
