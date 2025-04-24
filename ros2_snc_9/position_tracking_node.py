@@ -119,7 +119,7 @@ class PositionTrackingNode(Node):
                 path_msg.header.frame_id = self.map_frame
                 path_msg.poses = list(self.explored_path)
                 self.path_publisher.publish(path_msg)
-                self.get_logger().debug(f'Published explored path with {len(path_msg.poses)} poses.')
+                self.get_logger().info(f'Published explored path with {len(path_msg.poses)} poses.')
 
             except tf2_ros.TransformException as ex:
                 self.get_logger().warn(f'Could not transform {self.base_frame} to {self.map_frame}: {ex}')
