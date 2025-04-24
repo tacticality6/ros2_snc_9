@@ -41,7 +41,7 @@ def generate_launch_description():
             name='position_tracking',
             output='screen',
             parameters=[
-                {'tracking_interval': 2.0},
+                {'tracking_interval': 3.0},
                 {'path_history_topic': 'path_explore'},
                 {'return_path_topic': 'path_return'},
                 {'base_frame': 'base_link'},

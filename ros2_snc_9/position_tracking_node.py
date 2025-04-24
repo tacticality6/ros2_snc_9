@@ -19,6 +19,7 @@ class RobotState(Enum):
     EXPLORING = 1
     RETURNING_HOME = 2
     IDLE = 3
+    STARTING = 4
 
 class PositionTrackingNode(Node):
     def __init__(self):
@@ -49,10 +50,9 @@ class PositionTrackingNode(Node):
 
         # Internal variables
         self.explored_path = []  # List to store PoseStamped messages of the explored path
-        self.robot_state = RobotState.EXPLORING
+        self.robot_state = RobotState.STARTING
         self.get_logger().info(f'Initial robot state: {self.robot_state.name}')
-        self.path_tracking_timer = self.create_timer(self.tracking_interval, self.track_position)
-        self.get_logger().info(f'Path tracking timer created with interval: {self.tracking_interval}')
+        
 
         # Nav2 Action Client for Waypoint Following
         self.follow_waypoints_client = ActionClient(self, FollowWaypoints, self.follow_waypoints_action_name)
@@ -77,10 +77,10 @@ class PositionTrackingNode(Node):
             self.start_return_home()
         elif msg.data == "Exploring" and self.robot_state == RobotState.RETURNING_HOME:
             self.get_logger().debug('Received "Exploring" state while returning home. Ignoring.')
-        elif msg.data == "Idle" and self.robot_state == RobotState.RETURNING_HOME:
-            self.get_logger().debug('Received "Idle" state. Assuming return home is complete.')
-            self.robot_state = RobotState.IDLE
-            self.get_logger().debug(f'Robot state updated to: {self.robot_state.name}')
+        elif msg.data == "Exploring" and self.robot_state == RobotState.STARTING:
+            self.path_tracking_timer = self.create_timer(self.tracking_interval, self.track_position)
+            self.track_position()
+            self.get_logger().info(f'Path tracking timer created with interval: {self.tracking_interval}')
 
     def track_position(self):
         if self.robot_state == RobotState.EXPLORING:
