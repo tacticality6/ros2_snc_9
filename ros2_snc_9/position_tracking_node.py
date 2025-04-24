@@ -35,8 +35,8 @@ class PositionTrackingNode(Node):
         #self.rotation_before_return = self.declare_parameter('rotation_before_return', True).get_parameter_value().bool_value # Rotate 180 before returning
 
         # Publishers
-        self.path_publisher = self.create_publisher(Path, self.path_history_topic, qos_profile_sensor_data)
-        self.return_path_publisher = self.create_publisher(Path, self.return_path_topic, qos_profile_sensor_data)
+        self.path_publisher = self.create_publisher(Path, self.path_history_topic, QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE))
+        self.return_path_publisher = self.create_publisher(Path, self.return_path_topic, QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE))
         #self.twist_publisher = self.create_publisher(Twist, 'cmd_vel', 10) # For manual rotation
 
         self.get_logger().info(f'Publisher created on topic: {self.path_history_topic}')
