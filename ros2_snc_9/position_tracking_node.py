@@ -34,14 +34,6 @@ class PositionTrackingNode(Node):
         self.path_history_max_length = self.declare_parameter('path_history_max_length', 1000).get_parameter_value().integer_value  # Maximum path length
         #self.rotation_before_return = self.declare_parameter('rotation_before_return', True).get_parameter_value().bool_value # Rotate 180 before returning
 
-        self.get_logger().info(f'Tracking interval: {self.tracking_interval}')
-        self.get_logger().info(f'Path history topic: {self.path_history_topic}')
-        self.get_logger().info(f'Return path topic: {self.return_path_topic}')
-        self.get_logger().info(f'Base frame: {self.base_frame}')
-        self.get_logger().info(f'Map frame: {self.map_frame}')
-        self.get_logger().info(f'Follow waypoints action name: {self.follow_waypoints_action_name}')
-        self.get_logger().info(f'Path history max length: {self.path_history_max_length}')
-
         # Publishers
         self.path_publisher = self.create_publisher(Path, self.path_history_topic, qos_profile_sensor_data)
         self.return_path_publisher = self.create_publisher(Path, self.return_path_topic, qos_profile_sensor_data)
@@ -79,16 +71,16 @@ class PositionTrackingNode(Node):
         self.get_logger().info('Position tracking node initialized.')
 
     def state_callback(self, msg):
-        self.get_logger().info(f'Received state message: "{msg.data}"')
+        self.get_logger().debug(f'Received state message: "{msg.data}"')
         if msg.data == "Returning Home" and self.robot_state == RobotState.EXPLORING:
             self.get_logger().info('State changed to "Returning Home". Starting return sequence.')
             self.start_return_home()
         elif msg.data == "Exploring" and self.robot_state == RobotState.RETURNING_HOME:
-            self.get_logger().info('Received "Exploring" state while returning home. Ignoring.')
+            self.get_logger().debug('Received "Exploring" state while returning home. Ignoring.')
         elif msg.data == "Idle" and self.robot_state == RobotState.RETURNING_HOME:
-            self.get_logger().info('Received "Idle" state. Assuming return home is complete.')
+            self.get_logger().debug('Received "Idle" state. Assuming return home is complete.')
             self.robot_state = RobotState.IDLE
-            self.get_logger().info(f'Robot state updated to: {self.robot_state.name}')
+            self.get_logger().debug(f'Robot state updated to: {self.robot_state.name}')
 
     def track_position(self):
         if self.robot_state == RobotState.EXPLORING:
